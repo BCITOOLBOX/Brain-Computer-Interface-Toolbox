@@ -36,7 +36,7 @@ fprintf('Preparing features...\n');
 %use precomputed features if ft and ftmrk were provided, otherwise
 %compute the features yourself
 if nargin<8 || isempty(ft) || isempty(ftmrk)
-  [ft,ftmrk]=ftprep(datafiles,predt,postdt,chid,commonmode,ftid);
+    [ft,ftmrk]=ftprep(datafiles,predt,postdt,chid,commonmode,ftid);
 end
 
 %make features
@@ -47,8 +47,8 @@ end
 %if trial-idx field of ft was passed, constrain the samples to include
 %only the specific trials selected in ft.tridx
 if isfield(ft,'tridx')
-  trialExamples=trialExamples(ft.tridx,:);
-  trialLabels=trialLabels(ft.tridx);
+    trialExamples=trialExamples(ft.tridx,:);
+    trialLabels=trialLabels(ft.tridx);
 end
 
 %constrain examples to contain only the desired 'targets'
@@ -74,16 +74,16 @@ trialExamples=bsxfun(@rdivide,trialExamples,ssamples);
 %define {training-validation}/test split (always randomized)
 nn=size(trialExamples,1);        %number of examples
 if nargin<9 || isempty(testid)
-  testid=rand(1,nn)<testThr;
+    testid=rand(1,nn)<testThr;
 end
 
 %define training/validation split (controlled by global xvalsequential)
 if xvalsequential
-  fprintf('Sequential x-validation split\n');
-  trainid=((1:nn)/nn)<xvalThr;
+    fprintf('Sequential x-validation split\n');
+    trainid=((1:nn)/nn)<xvalThr;
 else
-  fprintf('Random x-validation split\n');
-  trainid=rand(1,nn)<xvalThr;
+    fprintf('Random x-validation split\n');
+    trainid=rand(1,nn)<xvalThr;
 end
 
 %training dataset, randomize order
@@ -92,7 +92,7 @@ idx=idx(randperm(length(idx)));
 idx=idx(1:min(length(idx),nnmax));
 trainExamples=trialExamples(idx,:);
 %break degeneracies (hurtful for some methods)
-trainExamples=trainExamples+1E-6*randn(size(trainExamples));  
+trainExamples=trainExamples+1E-6*randn(size(trainExamples));
 trainTargets=trialLabels(idx);
 
 
@@ -115,79 +115,79 @@ testTargets=trialLabels(idx);
 [ftidx,ranks,nid]=parse_ftid(ftid,ft,trialExamples,trialLabels,targets);
 
 if nid>0
-  %restrict feature sets to such selected in ftidx for
-  %train and validation data
-  ctexamples=trainExamples(:,ftidx);
-  cttargets=trainTargets;
-  cvexamples=valExamples(:,ftidx);
-  cvtargets=valTargets;
-  
-  %train classifier, looping over any internal hyperparameters
-  clobj=funcTrain(ctexamples,cttargets,cvexamples,cvtargets);
-else
-  %automatically select the number of features to keep
-  dnn=25;           %initial num of features and the increment step
-  dnn_stop=4;       %number of increments without improvement before stop
-  dnn_stop2=10;     %number of increments without improvement before stop
-  dnn_cnt=0;        %counter of increments without improvement
-  dnn_cnt2=0;       %counter of increments without improvement
-  dnn_mininc=2E-2;  %minimal required improvement
-  dnn_mininc2=1E-3; %minimal required improvement
-  
-  xclobj=[];          %best classifier
-  xnid=[];          %best nid
-  xp=-[Inf,Inf];%previous performance values
-  for nid=dnn:dnn:length(ranks)
-    ftidx_=ftidx(1:nid);
-    
-    %restrict feature sets to such selected in ftidx_
-    ctexamples=trainExamples(:,ftidx_);
+    %restrict feature sets to such selected in ftidx for
+    %train and validation data
+    ctexamples=trainExamples(:,ftidx);
     cttargets=trainTargets;
-    cvexamples=valExamples(:,ftidx_);
+    cvexamples=valExamples(:,ftidx);
     cvtargets=valTargets;
     
     %train classifier, looping over any internal hyperparameters
     clobj=funcTrain(ctexamples,cttargets,cvexamples,cvtargets);
+else
+    %automatically select the number of features to keep
+    dnn=25;           %initial num of features and the increment step
+    dnn_stop=4;       %number of increments without improvement before stop
+    dnn_stop2=10;     %number of increments without improvement before stop
+    dnn_cnt=0;        %counter of increments without improvement
+    dnn_cnt2=0;       %counter of increments without improvement
+    dnn_mininc=2E-2;  %minimal required improvement
+    dnn_mininc2=1E-3; %minimal required improvement
     
-    %check performance on validation set
-    xtest=funcClassify(clobj,cvexamples);
-    p2=mean(cvtargets==xtest);
-    
-    %check performance on test set
-    ctexamples=testExamples(:,ftidx_);
-    cttargets=testTargets;
-    
-    xtest=funcClassify(clobj,ctexamples);
-    p3=mean(cttargets==xtest);
-    
-    %evaluate stopping condition -
-    % no improvement for dnn_stop increments
-    if (xp(1)>p2+dnn_mininc || xp(2)>p3+dnn_mininc)
-      dnn_cnt=dnn_cnt+1;
-    else
-      xclobj=clobj;
-      xnid=nid;
-      xp=[p2,p3];
-      dnn_cnt=0;
+    xclobj=[];          %best classifier
+    xnid=[];          %best nid
+    xp=-[Inf,Inf];%previous performance values
+    for nid=dnn:dnn:length(ranks)
+        ftidx_=ftidx(1:nid);
+        
+        %restrict feature sets to such selected in ftidx_
+        ctexamples=trainExamples(:,ftidx_);
+        cttargets=trainTargets;
+        cvexamples=valExamples(:,ftidx_);
+        cvtargets=valTargets;
+        
+        %train classifier, looping over any internal hyperparameters
+        clobj=funcTrain(ctexamples,cttargets,cvexamples,cvtargets);
+        
+        %check performance on validation set
+        xtest=funcClassify(clobj,cvexamples);
+        p2=mean(cvtargets==xtest);
+        
+        %check performance on test set
+        ctexamples=testExamples(:,ftidx_);
+        cttargets=testTargets;
+        
+        xtest=funcClassify(clobj,ctexamples);
+        p3=mean(cttargets==xtest);
+        
+        %evaluate stopping condition -
+        % no improvement for dnn_stop increments
+        if (xp(1)>p2+dnn_mininc || xp(2)>p3+dnn_mininc)
+            dnn_cnt=dnn_cnt+1;
+        else
+            xclobj=clobj;
+            xnid=nid;
+            xp=[p2,p3];
+            dnn_cnt=0;
+        end
+        
+        if (p2<xp(1)+dnn_mininc2 && p3<xp(2)+dnn_mininc2)
+            dnn_cnt2=dnn_cnt2+1;
+        else
+            dnn_cnt2=0;
+        end
+        
+        fprintf(' best number of features search %i: (%g,%g)...\n',nid,p2,p3);
+        
+        if dnn_cnt>dnn_stop || dnn_cnt2>dnn_stop2
+            break;
+        end
     end
     
-    if (p2<xp(1)+dnn_mininc2 && p3<xp(2)+dnn_mininc2)
-      dnn_cnt2=dnn_cnt2+1;
-    else
-      dnn_cnt2=0;
-    end   
+    ftidx=ftidx(1:xnid);
+    clobj=xclobj;
     
-    fprintf(' best number of features search %i: (%g,%g)...\n',nid,p2,p3);
-    
-    if dnn_cnt>dnn_stop || dnn_cnt2>dnn_stop2
-      break;
-    end
-  end
-  
-  ftidx=ftidx(1:xnid);
-  clobj=xclobj;
-  
-  fprintf(' ===selected %i: (%g,%g)...\n',xnid,xp);
+    fprintf(' ===selected %i: (%g,%g)...\n',xnid,xp);
 end
 
 
