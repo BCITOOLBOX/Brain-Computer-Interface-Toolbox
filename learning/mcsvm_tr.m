@@ -1,7 +1,5 @@
 classdef mcsvm_tr<handle
     
-    properties(Access = protected)
-    end
     properties(Access = private)
         eegsamples
         xvalthr=0.70;     %train-validation split
@@ -9,10 +7,7 @@ classdef mcsvm_tr<handle
         nnmax=10000;      %max number of examples to draw for training
         
     end
-    properties(GetAccess = public,SetAccess=private)
-    end
-    properties(GetAccess = public,SetAccess=protected)
-    end
+    
     properties(Access = public)
         commonmode       %common mode modifier
         xvalsequential   %sequential/random train-validation split modifier
@@ -27,10 +22,7 @@ classdef mcsvm_tr<handle
         act_flgtest
         
     end
-    methods(Access=private)
-    end
-    methods(Access=protected)
-    end
+
     methods(Access=public)
         
         function Parameters(this)
@@ -38,10 +30,10 @@ classdef mcsvm_tr<handle
             if isempty(this.xvalsequential)
                 this.xvalsequential=false; end
             
-            if nargin<5
+            if isempty(this.ftid)
                 this.ftid=[]; end
             
-            if nargin<6 || isempty(this.target)
+            if isempty(this.target)
                 this.target=[1 2]; end
         end
         
@@ -235,9 +227,6 @@ classdef mcsvm_tr<handle
             p1=mean(train_targets==xtest);
             fprintf('Training %g\n',p1);
             
-        end
-        
-        function XValidation(this)
             %% X-validation
             %obtain mnSVM values
             vals1=ownclassify(osvm,val_examples);
@@ -247,11 +236,7 @@ classdef mcsvm_tr<handle
             p2=sum(vals==vals1)/length(vals);
             fprintf('X-validation %g\n',p2);
             
-            
-        end
-        
-        function Test(this)
-            %% Test
+                        %% Test
             %obtain SVM values
             vals1=ownclassify(osvm,test_examples);
             vals=test_targets;
@@ -260,10 +245,7 @@ classdef mcsvm_tr<handle
             p3=sum(vals==vals1)/length(vals);
             fprintf('Test %g\n',p3);
             
-        end
-        
-        function FormSVMObject(this)
-            %% Form SVM object
+              %% Form SVM object
             svmObject=[];
             svmObject.target=this.target;
             svmObject.o=osvm;
@@ -301,7 +283,9 @@ classdef mcsvm_tr<handle
                 labels=reshape(this.target(labels),[],1);
             end
             
+            
         end
+        
         
     end
 end
