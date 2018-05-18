@@ -16,18 +16,18 @@ classdef (Abstract) SuperClass < handle
     end
     
     methods(Abstract=true)
-            callTrainingScaffold(this);
+        callTrainingScaffold(this)
     end
     
-    methods
+    methods(Access=public)
         function object= SuperClass(datafiles,predt,postdt,chid,ftid,targets,ft,ftmrk,testid)
-        
-             if nargin<5 || isempty(ftid)
-                ftid=[]; 
-             end
+            
+            if nargin<5 || isempty(ftid)
+                ftid=[];
+            end
             
             if nargin<6 || isempty(targets)
-                targets=[1 2]; 
+                targets=[1 2];
             end
             
             if nargin<7 || isempty(ft)
@@ -35,33 +35,33 @@ classdef (Abstract) SuperClass < handle
             end
             
             if nargin<8 || isempty(ftmrk)
-                 ftmrk=[];
+                ftmrk=[];
             end
             
             if nargin<9 || isempty(testid)
                 testid=[];
-            end    
+            end
             
-        object.datafiles=datafiles;
-        object.predt=predt;
-        object.postdt=postdt;
-        object.chid=chid;
-        object.ftid=ftid;
-        object.targets=targets;
-        object.ft=ft;
-        object.ftmrk=ftmrk;
-        object.testid=testid;
-        
-
-        
+            object.datafiles=datafiles;
+            object.predt=predt;
+            object.postdt=postdt;
+            object.chid=chid;
+            object.ftid=ftid;
+            object.targets=targets;
+            object.ft=ft;
+            object.ftmrk=ftmrk;
+            object.testid=testid;
+            
+            
+            
         end
         
-            function Calculate(this)
-        validatingInput(this)
-        callTrainingScaffold(this)
+        function Calculate(this)
+            validatingInput(this)
+            callTrainingScaffold(this)
         end
         
-            function validatingInput(this)
+        function validatingInput(this)
             if isempty(this.ftid)
                 this.ftid=[]; end
             if isempty(this.targets)
@@ -74,8 +74,7 @@ classdef (Abstract) SuperClass < handle
                 this.testid=[];
             end
             
-            end
-        
+        end
 
     end
     
