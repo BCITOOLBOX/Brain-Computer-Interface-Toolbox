@@ -262,8 +262,8 @@ classdef ClassificationKNearestNeighbors <handle & SuperClass
                 fprintf('Training %g\n',p1);
                 
                 %check final performance on validation set
-                xtest=funcClassify(clobj,valExamples(:,ftidx));
-                p2=nanmean(valTargets==xtest);
+                xtest1=funcClassify(clobj,valExamples(:,ftidx));
+                p2=nanmean(valTargets==xtest1);
                 fprintf('X-validation %g\n',p2);
                 
                 
@@ -275,7 +275,9 @@ classdef ClassificationKNearestNeighbors <handle & SuperClass
                 %% output
                 % train-validation-test performances
                 pp=[p1 p2 p3];
-                
+
+                this.ConfusionTargets=valTargets;
+                this.ConfusionOutputs=xtest1;
                 %category classifier object
                 ccobj=[];
                 ccobj.ftidx=ftidx;                    %used features
@@ -283,7 +285,6 @@ classdef ClassificationKNearestNeighbors <handle & SuperClass
                 ccobj.stdtrf=ssamples(ftidx);         %divided STD
                 ccobj.categoryClassifier=clobj;        %classifier object
                 
-                %plotconfusion(1:3,pp);
                 
                 function [ftdata,mrkdata,ftidx]=make_features(ft,ftmrk,ftid,verb)
                     %[ftdata mrkdata ftidx]=make_features(ft,ftmrk[,ftid,verb])
@@ -569,9 +570,7 @@ classdef ClassificationKNearestNeighbors <handle & SuperClass
             
         end
         
-        function PlotConfusionMatrix(this)
-            plotconfusion(this.target,pp);
-        end
+        
         
     end
 end

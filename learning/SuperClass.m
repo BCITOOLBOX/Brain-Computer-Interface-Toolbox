@@ -3,7 +3,6 @@ classdef (Abstract) SuperClass < handle
     %   Detailed explanation goes here
     
     properties(Access = public)
-        
         datafiles
         predt
         postdt
@@ -13,6 +12,8 @@ classdef (Abstract) SuperClass < handle
         ft
         ftmrk
         testid
+        ConfusionTargets
+        ConfusionOutputs
     end
     
     methods(Abstract=true)
@@ -61,6 +62,43 @@ classdef (Abstract) SuperClass < handle
             callTrainingScaffold(this)
         end
         
+        function PlotConfusionMatrix(this)
+            plotConfusionWrapper(this.ConfusionTargets,this.ConfusionOutputs);
+            function plotConfusionWrapper(vals,vals1)
+                % Neural Net toolbox's plotconfusion wrapper to use index arrays.
+                % Usage:
+                %  plotConfusionWrapper(vals,vals1)
+                %  vals and vals1 are index (categorical) arrays of class labels
+                %  to be compared in confusion matrix.
+                %  'vals' are true class targets and 'vals1' are predicted classes.
+                
+                %convert classification index arrays to one-hot form
+                %by first calculating indices of '1' in one-hot matrix
+                %and then creating the one-hot matrix and setting those
+                %indices to 1
+                num_classes=max(max(vals),max(vals1));
+                shape=[num_classes, length(vals)];
+                if length(vals)~=length(vals1)
+                    printf('Targets and predictions arrays are of different length, quiting')
+                    return
+                end
+                idx_vals=sub2ind(shape,vals(:),[1:shape(2)]');
+                idx_vals1=sub2ind(shape,vals1(:),[1:shape(2)]');
+                
+                % set '1' at positions specified by idx_vals/idx_vals1
+                onehot_vals=zeros(shape);
+                onehot_vals(idx_vals)=1;
+                
+                onehot_vals1=zeros(shape);
+                onehot_vals1(idx_vals1)=1;
+                
+                plotconfusion(onehot_vals,onehot_vals1)
+                
+                
+            end
+            
+        end
+        
         function validatingInput(this)
             if isempty(this.ftid)
                 this.ftid=[]; end
@@ -75,7 +113,7 @@ classdef (Abstract) SuperClass < handle
             end
             
         end
-
+        
     end
     
 end

@@ -13,7 +13,7 @@ classdef GeneralLearningCurve < handle
         xvalsequential
         Ntrains
         prc
-        act_flgtest
+        testid
     end
     
     
@@ -40,10 +40,6 @@ classdef GeneralLearningCurve < handle
         end
         
         function PlotLearningCurve(this)
-            learning_curve_calculator(this)
-        end
-        
-        function learning_curve_calculator(this)
             fprintf('Learning curves calculation for EEG BCI...\n');
             if isempty(this.xvalsequential)
                 this.xvalsequential=false;
@@ -56,10 +52,10 @@ classdef GeneralLearningCurve < handle
             nn=length(ttidx);     %number of epochs
             if (this.xvalsequential)     %test subset
                 fprintf('Sequential x-validation split\n');
-                this.act_flgtest=(1-(1:nn)/nn)<this.testthr;
+                this.testid=(1-(1:nn)/nn)<this.testthr;
             else
                 fprintf('Random x-validation split\n');
-                this.act_flgtest=rand(1,nn)<this.testthr;
+                this.testid=rand(1,nn)<this.testthr;
             end
             
             this.Ntrains=50:50:floor(nn*3/4);
@@ -80,7 +76,7 @@ classdef GeneralLearningCurve < handle
                     
                     %% train classifier
                     try
-                        [obj ,pp]=this.class.callTrainingScaffold();%(this.datafiles,this.predt,this.postdt,this.chid,this.ftid,this.targets,ft,ftmrk,this.act_flgtest(idx));
+                        [obj ,pp]=this.class.callTrainingScaffold();
                     catch E
                         if ecnt<3
                             ecnt=ecnt+1;

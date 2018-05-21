@@ -263,6 +263,8 @@ classdef ClassificationSupportVectorMachine <handle & SuperClass
                 p3=sum(vals==vals1)/length(vals);
                 fprintf('Test %g\n',p3);
                 
+                this.ConfusionTargets=vals;
+                this.ConfusionOutputs=vals1;
                 %% Form SVM object
                 ccobj=[];
                 ccobj.targets=targets;
